@@ -7,12 +7,13 @@ let links = [
     description: "Fullstack tutorial for GraphQL"
   }
 ];
-let idCount = links.length
+let idCount = links.length;
 // 2
 const resolvers = {
   Query: {
     info: () => `This is the API of a Hackernews Clone`,
-    feed: () => links
+    feed: () => links,
+    link: (parent, args) => links.find(a => args.id === a.id)
   },
 
   Mutation: {
@@ -20,20 +21,28 @@ const resolvers = {
       const link = {
         id: `link-${idCount++}`,
         description: args.description,
-        url: args.url,
-      }
-      links.push(link)
-      return link
+        url: args.url
+      };
+      links.push(link);
+      return link;
     },
     updateLink: (parent, args) => {
-      let link = links.find(a => id === args.id)
+      let link = links.find(a => a.id === args.id);
+      link.description = args.description;
+      link.url = args.url;
+      return link;
+    },
+    deleteLink: (parent, args) => {
+      const newLinks = links.filter(a => a.id !== args.id);
+      links = newLinks;
+      return null;
     }
   }
 };
 
 // 3
 const server = new GraphQLServer({
-  typeDefs: './src/schema.graphql',
+  typeDefs: "./src/schema.graphql",
   resolvers
 });
 
